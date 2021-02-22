@@ -39,6 +39,12 @@
 	 *	 // hello: world in their properties
 	 * });
 	 */
+
+	db = new Store('ma_base');
+	db.find({title: 'La raclette de Savoie'}, function(todo) {
+		console.log(todo);
+	});
+
 	Store.prototype.find = function (query, callback) {
 		if (!callback) {
 			return;
@@ -77,16 +83,29 @@
 	Store.prototype.save = function (updateData, callback, id) {
 		var data = JSON.parse(localStorage[this._dbName]);
 		var todos = data.todos;
-
+	
 		callback = callback || function () {};
 
-		// Generate an ID
-	    var newId = ""; 
-	    var charset = "0123456789";
-
-        for (var i = 0; i < 6; i++) {
-     		newId += charset.charAt(Math.floor(Math.random() * charset.length));
+		let todosId = [], // Je définis un tableau afin de lister tous les id présents dans la base de données
+			newId,
+			charset = "0123456789";
+		
+		//Je parcours chaque tâche
+		for(let i = 0; i < todos.length; i++) {
+			todosId.push(todos[i].id); // J'ajoute l'id de chaque tache à la liste d'id
 		}
+
+		do {
+			newId = "";
+			
+			for (var i = 0; i < 6; i++) {
+				newId += charset.charAt(Math.floor(Math.random() * charset.length));
+			}
+		} while (todosId.indexOf(newId) != -1);
+		/*La boucle do while effectue toujours une première itération afin de générer un id.
+		Lorsque l’id généré est identique à un id présent dans la liste, je régénère un nouvel id avec une nouvelle iteration du code 
+		jusqu'à que l'id soit unique.*/
+
 
 		// If an ID was actually given, find the item and update each property
 		if (id) {
