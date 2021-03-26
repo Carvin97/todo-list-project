@@ -75,6 +75,14 @@ describe('controller', function () {
 
 	it('should show entries on start-up', function () {
 		// TODO: write test
+        var todo = {title: 'my todo'}; //Je creer un objet todo
+		setUpModel([todo]); //J’envoi l’objet au modèle virtuel
+		
+		subject.setView(''); //Je demande au contrôleur la vue all pour afficher toutes les tâches
+		
+		expect(view.render).toHaveBeenCalledWith('showEntries', [todo]);
+		/*J’espionne la méthode View::render() pour vérifier que le contrôleur 
+        demande à la vue d'afficher toutes les tâches*/
 	});
 
 	describe('routing', function () {
@@ -99,10 +107,28 @@ describe('controller', function () {
 
 		it('should show active entries', function () {
 			// TODO: write test
+            var todo = {title: 'my todo', completed: false};
+			setUpModel([todo]);
+
+			subject.setView('#/active'); 
+			//Je demande au contrôleur de router sur la vue #/active pour afficher les tâches actives
+
+			expect(model.read).toHaveBeenCalledWith({completed: false}, jasmine.any(Function));
+			//J’espionne Model::read() pour vérifier que le contrôleur recherche bien les tâches non complétée
+			
+			expect(view.render).toHaveBeenCalledWith('showEntries', [todo]);
+			//Ensuite, le contrôleur doit demander à la vue d'afficher les tâches en questions
 		});
 
 		it('should show completed entries', function () {
 			// TODO: write test
+            var todo = {title: 'my todo', completed: true};
+			setUpModel([todo]);
+
+			subject.setView('#/completed');
+
+			expect(model.read).toHaveBeenCalledWith({completed: true}, jasmine.any(Function));
+			expect(view.render).toHaveBeenCalledWith('showEntries', [todo]);
 		});
 	});
 
@@ -150,25 +176,82 @@ describe('controller', function () {
 
 	it('should highlight "All" filter by default', function () {
 		// TODO: write test
+        setUpModel([]);
+
+		subject.setView('');
+		expect(view.render).toHaveBeenCalledWith('setFilter', '');
+		//Je verifie que le controleur demande à la vue de mettre en évidence le filtre All
 	});
 
 	it('should highlight "Active" filter when switching to active view', function () {
 		// TODO: write test
+        setUpModel([]);
+
+		subject.setView('#/active'); 
+		//Je demande au contrôleur de router sur la vue #/active pour afficher les tâches actives
+		
+		expect(view.render).toHaveBeenCalledWith('setFilter', 'active');
+		//Je verifie que le controleur demande à la vue de mettre en évidence le filtre Active
 	});
 
 	describe('toggle all', function () {
 		it('should toggle all todos to completed', function () {
 			// TODO: write test
+            var todos = [{id: 42, title: 'my todo', completed: false}];
+			setUpModel(todos);
+
+			subject.setView('');
+			
+			view.trigger('toggleAll', {completed: true});
+			//Je simule l'appelle de l'événement click sur la checkbox toggle-All en la validant fictivement
+
+			for(var i = 0; i < todos.length; i++) {
+				var todo = todos[i];
+
+				expect(model.update).toHaveBeenCalledWith(todo.id, {completed: true}, jasmine.any(Function));
+				//Je verifie que le contrôleur demande au model de modifier les taches en les completant.
+			}
 		});
 
 		it('should update the view', function () {
 			// TODO: write test
+            var todos = [{id: 42, title: 'my todo', completed: true}];
+			setUpModel(todos);
+
+			subject.setView('');
+			
+			view.trigger('toggleAll', {completed: true});
+			//Je simule l'appelle de l'événement click sur la checkbox toggle-All en la validant fictivement
+			
+			for(var i = 0; i < todos.length; i++) {
+				var todo = todos[i];
+		
+				expect(view.render).toHaveBeenCalledWith('elementComplete', {id: todo.id, completed: true});
+				//Je vérifie que le contrôleur demande à la vue de rendre les tâches complétées
+			}
+
+			expect(view.render).toHaveBeenCalledWith('updateElementCount', 0);
+			//Ensuite, la vue doit placer le nombre d'element actif a zero
+
+			expect(view.render).toHaveBeenCalledWith('clearCompletedButton', {completed: todos.length, visible: true});
+			//Ensuite, la vue doit rendre le bouton clearCompletedButton visible
+
+			expect(view.render).toHaveBeenCalledWith('toggleAll', {checked: true});
+			//Ensuite, la vue doit valider la checkbox toogle-all
 		});
 	});
 
 	describe('new todo', function () {
 		it('should add a new todo to the model', function () {
 			// TODO: write test
+            setUpModel([]);
+
+			subject.setView('');
+			view.trigger('newTodo', 'a new todo');
+			//Je simule l'ajout d'une nouvelle tâche
+
+			expect(model.create).toHaveBeenCalledWith('a new todo', jasmine.any(Function));
+			//Je vérifie que le contrôleur demande au modele de créer une nouvelle tâche
 		});
 
 		it('should add a new todo to the view', function () {
@@ -209,6 +292,15 @@ describe('controller', function () {
 	describe('element removal', function () {
 		it('should remove an entry from the model', function () {
 			// TODO: write test
+            var todo = {id: 42, title: 'my todo', completed: true};
+			setUpModel([todo]);
+
+			subject.setView('');
+			view.trigger('itemRemove', todo);
+			//Je simule la supression d'une tâche
+
+			expect(model.remove).toHaveBeenCalledWith(todo.id, jasmine.any(Function));
+			//Je verifie que le controleur demande au modele de suprimmer la tâche
 		});
 
 		it('should remove an entry from the view', function () {
