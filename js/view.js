@@ -86,10 +86,13 @@
 		listItem.removeChild(input);
 
 		listItem.className = listItem.className.replace('editing', '');
+        
+        var label = qs('label', listItem);
+        label.textContent = title;
 
-		qsa('label', listItem).forEach(function (label) {
+		/*qsa('label', listItem).forEach(function (label) {
 			label.textContent = title;
-		});
+		});*/
 	};
 
 	View.prototype.render = function (viewCmd, parameter) {
