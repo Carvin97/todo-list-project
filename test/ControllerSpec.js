@@ -12,8 +12,23 @@ describe('controller', function () {
 		});
 
 		model.getCount.and.callFake(function (callback) {
-
 			var todoCounts = {
+				active: 0,
+				completed: 0,
+				total: 0
+			}
+			
+			todos.forEach(function (todo) {
+				if (todo.completed) {
+					todoCounts.completed++;
+				} else {
+					todoCounts.active++;
+				}
+
+				todoCounts.total++;
+			});
+			
+			/*var todoCounts = {
 				active: todos.filter(function (todo) {
 					return !todo.completed;
 				}).length,
@@ -21,7 +36,7 @@ describe('controller', function () {
 					return !!todo.completed;
 				}).length,
 				total: todos.length
-			};
+			};*/
 
 			callback(todoCounts);
 		});
