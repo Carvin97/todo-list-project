@@ -40,11 +40,6 @@
 	 * });
 	 */
 
-	db = new Store('ma_base');
-	db.find({title: 'La raclette de Savoie'}, function(todo) {
-		console.log(todo);
-	});
-
 	Store.prototype.find = function (query, callback) {
 		if (!callback) {
 			return;
@@ -86,12 +81,13 @@
 	
 		callback = callback || function () {};
 
-		let todosId = [], // Je définis un tableau afin de lister tous les id présents dans la base de données
+		// Je définis un tableau afin de lister tous les id présents dans la base de données
+        var todosId = [], 
 			newId,
 			charset = "0123456789";
 		
 		//Je parcours chaque tâche
-		for(let i = 0; i < todos.length; i++) {
+		for(var i = 0; i < todos.length; i++) {
 			todosId.push(todos[i].id); // J'ajoute l'id de chaque tache à la liste d'id
 		}
 
@@ -141,19 +137,20 @@
 	Store.prototype.remove = function (id, callback) {
 		var data = JSON.parse(localStorage[this._dbName]);
 		var todos = data.todos;
-		var todoId;
+		//var todoId;
 		
 		for (var i = 0; i < todos.length; i++) {
 			if (todos[i].id == id) {
-				todoId = todos[i].id;
+				//todoId = todos[i].id;
+                todos.splice(i, 1);
 			}
 		}
 
-		for (var i = 0; i < todos.length; i++) {
+		/*for (var i = 0; i < todos.length; i++) {
 			if (todos[i].id == todoId) {
 				todos.splice(i, 1);
 			}
-		}
+		}*/
 
 		localStorage[this._dbName] = JSON.stringify(data);
 		callback.call(this, todos);
